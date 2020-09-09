@@ -117,11 +117,12 @@ impl Workbook {
             let mut writer = zip::ZipWriter::new(&mut cursor);
             for archive_file in self.archive_files.iter() {
                 let options = zip::write::FileOptions::default();
-                writer.start_file_from_path(&archive_file.name, options)?;
+                writer.start_file(&archive_file.name.display().to_string(), options)
+                    .map_err(|x| Error::new(ErrorKind::Other, x))?;
                 writer.write_all(&archive_file.data)?;
             }
 
-            writer.finish()?;
+            writer.finish().map_err(|x| Error::new(ErrorKind::Other, x))?;
         }
 
         if let Some(xlsx_file) = &self.xlsx_file {
